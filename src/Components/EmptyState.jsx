@@ -12,7 +12,7 @@ const EmptyState = ({addNoteApp}) => {
         Select a note from the sidebar or Create a New One.
       </p>
       <div className="mt-6">
-        <button type='button' className='inline-flex items-center p-2 px-4 shadow-sm rounded-md text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-colors duration-300'
+        <button type='button' className='inline-flex items-center p-2 px-4 shadow-sm rounded-md text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-300 ease-in-out'
         onClick={addNoteApp}
         >
             <Plus className='mr-2'/>
