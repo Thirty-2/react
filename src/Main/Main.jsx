@@ -94,7 +94,7 @@ const Main = () => {
           <div className="flex-1 overflow-y-auto ">
             {activeNote ? ( <div className="h-full flex flex-col ">
               <div className="border-b border-gray-200 dark:border-stone-500 px-6 py-4 flex justify-between items-center">
-                <h2 className='text-lg font-medium text-gray-900 dark:text-gray-300'>Note Title</h2>
+                <h2 className='text-lg font-medium text-gray-900 dark:text-gray-300'>{activeNote.title}</h2>
               <div className="flex space-x-2">
                 {isEditing ? (<ReuseButton Sign={<X className='h-4 w-4'/>} handleClick={setIsEditing} value={false}/>) : 
                 <>

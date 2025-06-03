@@ -9,7 +9,7 @@ const NoteEditor = ({ notes, onSave }) => {
     e.preventDefault();
     const updatedNote = { 
       ...notes, 
-      title: title.trim() || '', 
+      title: title.trim() || 'Title', 
       content, 
       updatedAt: new Date().toISOString() 
     };
