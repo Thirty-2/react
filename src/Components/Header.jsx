@@ -23,8 +23,8 @@ const Header = ({addNote}) => {
         className="hidden dark:block"
       />
           </h1>
-          <button className='inline-flex items-center px-4 py-2 border border-transparent rounded-md shadown-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 cursor-pointer gap-2' onClick={addNote}>
-            New Note
+          <button className='inline-flex px-4 max-md:px-2 p-2 border border-transparent rounded-md shadown-sm text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 cursor-pointer gap-2' onClick={addNote}>
+            <p className='max-md:hidden'>New Note</p>
             <Plus />
           </button>
         </div>

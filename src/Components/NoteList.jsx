@@ -2,15 +2,17 @@ import React from 'react'
 import { Trash2 } from 'lucide-react'
 
 const NoteList = ({notes, activeNoteId, onSelectNote, onDelete}) => {
+  let count = 1
   return (
-  <div className="mx-4 ">
+    <>
+  <div className="m-4 max-md:hidden gap-2">
     {notes.map((note) => {
 
       const isActive = note.id === activeNoteId;
       const updatedDate = new Date(note.updatedAt);
 
       return (
-        <div className={`p-4 cursor-pointer hover:bg-teal-100 transition-all duration-300 ease-in-out  mt-2 group rounded-md ${isActive ? 'bg-teal-50' : "dark:text-stone-200" }`} key={note.id} >
+        <div className={`p-4 cursor-pointer hover:bg-teal-100 transition-all duration-300 ease-in-out max-md:w-fit mt-2 group rounded-md ${isActive ? 'bg-teal-50' : "dark:text-stone-200" }`} key={note.id} >
 
       <div className="flex justify-between">
         <div className="flex-1" onClick={() => onSelectNote(note)}>
@@ -40,6 +42,38 @@ const NoteList = ({notes, activeNoteId, onSelectNote, onDelete}) => {
       )
     })}
   </div>
+    
+
+  <div className="m-4 min-md:hidden flex gap-2 overflow-scroll scrollbar-hide">
+    {notes.map((note) => {
+
+      const isActive = note.id === activeNoteId;
+      const updatedDate = new Date(note.updatedAt);
+
+
+      return (
+        <div className={`p-4 cursor-pointer hover:bg-teal-100 transition-all duration-300 ease-in-out max-md:w-fit mt-2 group rounded-md ${isActive ? 'bg-teal-50' : "dark:text-stone-200" }`} key={note.id} >
+
+      <div className="flex justify-between">
+        <div className="flex-1" onClick={() => onSelectNote(note)}>
+
+          <h3 className='text-sm font-medium dark:group-hover:text-black '>
+            {count++}
+          </h3>
+          
+        </div>
+        <button className="ml-2  text-gray-700 hover:text-gray-950 cursor-pointer transition-all duration-300 ease-in-out" onClick={(e) => {
+          e.stopPropagation();
+          onDelete(note.id)
+        }}>
+          <Trash2 className="h-5 w-5 " />
+        </button>
+      </div>
+    </div>
+      )
+    })}
+  </div>
+    </>
   );
 }
 

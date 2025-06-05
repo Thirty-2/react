@@ -60,10 +60,10 @@ const Main = () => {
     <div className='min-h-screen bg-gray-50 flex flex-col dark:bg-ArtisansAsh-100'>
         <Header addNote={handleAddNote}/>
 
-        <div className="flex-1 flex overflow-hidden">
-          <div className="w-80 border-r border-gray-200 dark:border-none bg-white dark:bg-ArtisansAsh-200 overflow-y-auto">
+        <div className="flex-1 flex max-md:flex-col overflow-hidden">
+          <div className="w-80 border-r border-gray-200 dark:border-none bg-white dark:bg-ArtisansAsh-200 overflow-y-auto max-md:m-auto max-md:w-full">
             <div className="p-4">
-              <div className="relative">
+              <div className="relative ">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className='h-5 w-5 text-gray-400 dark:text-gray-50' />
                 </div>
@@ -82,7 +82,7 @@ const Main = () => {
             {/* SideBar */}
             {filteredNotes.length > 0 ? (<NoteList 
             notes={filteredNotes} 
-            activeNoteId={activeNote?.id} onSelectNote={setActiveNote} 
+            activeNoteId={activeNote?.id} onSelectNote={setActiveNote}
             onDelete={handleDeleteNote}/>) : (
               <div className="p-4 text-center text-gray-500 dark:text-gray-300">
                 {searchQuery ? 'No notes found' : 'No notes available. Click the button below to add a new note.'}
@@ -91,8 +91,8 @@ const Main = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-y-auto ">
-            {activeNote ? ( <div className="h-full flex flex-col ">
+          <div className="flex-1 overflow-y-auto">
+            {activeNote ? ( <div className="h-full flex flex-col">
               <div className="border-b border-gray-200 dark:border-stone-500 px-6 py-4 flex justify-between items-center">
                 <h2 className='text-lg font-medium text-gray-900 dark:text-gray-300'>{activeNote.title}</h2>
               <div className="flex space-x-2">

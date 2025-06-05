@@ -18,7 +18,7 @@ const NoteEditor = ({ notes, onSave }) => {
 
   return (
     <form className="h-full flex flex-col" onSubmit={handleSubmit}>
-      <div className="p-6 flex-1 flex flex-col">
+      <div className="p-6 flex flex-col flex-1 h-screen ">
         <input
           type="text"
           placeholder="Title"
@@ -29,17 +29,25 @@ const NoteEditor = ({ notes, onSave }) => {
         />
         <textarea
           placeholder="Write Something..."
-          className="flex-1 w-full dark:outline-none resize-none p-4 placeholder-stone-500 dark:placeholder-gray-200 text-gray-900 dark:text-stone-200"
+          className="max-md:hidden flex-1 w-full dark:outline-none resize-none p-4 placeholder-stone-500 dark:placeholder-gray-200 text-gray-900 dark:text-stone-200"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        ></textarea>
+
+        <textarea
+        rows={25}
+          placeholder="Write Something..."
+          className="min-md:hidden flex-1 w-full dark:outline-none resize-none p-4 placeholder-stone-500 dark:placeholder-gray-200 text-gray-900 dark:text-stone-200"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         ></textarea>
       </div>
-      <div className="border-t px-6 flex py-4 justify-end border-gray-200 dark:border-stone-500">
+      <div className="border-t px-6 flex py-4 justify-end border-gray-200 dark:border-stone-500 ">
         <button
           type="submit"
           className="inline-flex items-center p-2 border-none rounded-md text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-300 ease-in-out"
         >
-          <Save className="mr-2" />
+          <Save className="mr-2 " />
           Save
         </button>
       </div>
