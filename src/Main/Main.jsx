@@ -57,7 +57,7 @@ const Main = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 flex flex-col dark:bg-ArtisansAsh-100'>
+    <div className='h-screen bg-gray-50 flex flex-col dark:bg-ArtisansAsh-100 scrollbar-hide overflow-x-hidden'>
         <Header addNote={handleAddNote}/>
 
         <div className="flex-1 flex max-md:flex-col overflow-hidden">
