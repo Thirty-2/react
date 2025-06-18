@@ -1,2 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tsukimi+Rounded&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Niconne&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
+
 @import "tailwindcss";
 
+:root {
+    --background: ;
+}
+.dark {
+    --background: ;
+}
+
+@theme {
+
+    --font-Parisienne: 'Parisienne', 'sans-serif';
+    --font-Niconne: 'Niconne', 'sans-serif';
+    --font-TsukimiRounded: 'Tsukimi Rounded', 'sans-serif';
+    --font-ComicNeue: 'Comic Neue', 'sans-serif';
+    --font-palanquin: 'Palanquin', 'sans-serif';
+    --font-montserrat: 'Montserrat', 'sans-serif';
+    --font-Raleway: 'Raleway', 'sans-serif';
+    --font-OpenSans: 'Open Sans', 'sans-serif';
+
+    --radius-IHome: 1.5rem;
+
+
+    /* Font Size */
+    --font-xs: ['12px', '16px'];
+    --font-sm: ['14px', '20px'];
+    --font-base: ['16px', '19.5px'];
+    --font-lg: ['18px', '21.94px'];
+    --font-xl: ['20px', '24.38px'];
+    --font-2xl: ['24px', '29.26px'];
+    --font-3xl: ['28px', '50px'];
+    --font-4xl: ['48px', '58px'];
+    --font-8xl: ['96px', '106px'];
+    /*  */
+    --color-primary: #ECEEFF;
+    --color-coralRed: #FF6452;
+    --color-slate-gray: #6D6D6D;
+    --color-pale-blue: #F5F6FF;
+    --color-white-400: rgba(255, 255, 255, 0.80);
+    --color-Navy-800: hsl(219, 30%, 18%);
+    --color-Navy-850: hsl(217, 28%, 15%);
+    --color-Navy-900: hsl(218, 28%, 13%);
+    --color-Navy-950: hsl(216, 53%, 9%);
+    --color-Teal-200: hsl(176, 68%, 64%);
+    --color-Cyan-500: hsl(198, 60%, 50%);
+    --color-ArtisansBlue: #0090FF;
+    --color-ArtisansBlue-100: #49B0FF;
+    --color-ArtisansBlue-200: #60A5FF;
+    --color-ArtisansAsh-100: #313131;
+    --color-ArtisansAsh-200: #212121;
+    --color-ArtisansAsh-300: #222222;
+    --color-MidnightIndigo: #212842;
+    --color-VanillaCream: #F0E7D5;
+    --color-Asphalt: #302f2c;
+    --color-Paper: #efede3;
+    --color-ButterYellow: #ffeda8;
+    --color-Coffee: #493628;
+    --color-Vanilla: #d6c0b3;
+    /*  */
+    --breakpoint-xs: 480px;
+    --breakpoint-wide: 1440px;
+    /*  */
+    --shadow-3xl: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+    
+}
+
+
+
+@layer components {
+  .max-container {
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .input {
+    @apply sm:flex-1 max-sm:w-full text-base leading-normal text-slate-gray pl-5 max-sm:p-5 outline-none sm:border-none border max-sm:border-slate-gray max-sm:rounded-full;
+  }
+}
+
+@layer utilities {
+  .padding {
+    @apply sm:px-16 px-8 sm:py-24 py-12;
+  }
+
+  .padding-x {
+    @apply sm:px-16 px-8;
+  }
+
+  .padding-y {
+    @apply sm:py-24 py-12;
+  }
+
+  .padding-l {
+    @apply sm:pl-16 pl-8;
+  }
+
+  .padding-r {
+    @apply sm:pr-16 pr-8;
+  }
+
+  .padding-t {
+    @apply sm:pt-24 pt-12;
+  }
+
+  .padding-b {
+    @apply sm:pb-24 pb-12;
+  }
+
+  .info-text {
+    @apply font-montserrat text-slate-gray text-lg leading-7;
+  }
+
+}
+
+.back{
+  background-image: url(./assets/images/bg-curvy-mobile.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+@media (min-width:1000px) {
+    .back{
+        background-image: url(./assets/images/bg-curvy-desktop.svg);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: bottom;
+        height: 1100px;
+    }
+}
+
+.BG_ARTISANS {
+  position: relative; /* Ensure the pseudo-element is positioned relative to this container */
+  background-image: url(./assets/images/display_1.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.BG_ARTISANS::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
+  z-index: 1;
+}
+
+.BG_ARTISANS > * {
+  position: relative;
+  z-index: 2; /* Content above overlay */
+}

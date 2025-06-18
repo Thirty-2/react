@@ -1,0 +1,140 @@
+import React, { useState } from 'react';
+import { MdSearch, MdAdd } from 'react-icons/md';
+import {ReactTyped} from 'react-typed';
+
+const ArtisanCard = ({ name, title, rating }) => (
+  <div className="bg-white/80 rounded-lg shadow-md p-4 flex items-center gap-4 hover:bg-blue-100 transition-colors duration-300 cursor-pointer">
+    <div className="w-12 h-12 bg-blue-300 rounded-full"></div> {/* Placeholder avatar */}
+    <div>
+      <p className="text-sm font-medium">{name}</p>
+      <p className="text-xs text-gray-500">{title}</p>
+      <div className="flex text-yellow-400">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span key={i} className={i < rating ? 'text-yellow-400' : 'text-gray-300'}>
+            ★
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const JobCard = ({ name, title, rating }) => (
+  <div className="bg-white/80 rounded-lg shadow-md p-4 flex items-center gap-4 hover:bg-blue-100 transition-colors duration-300 cursor-pointer">
+    <div className="w-12 h-12 bg-blue-300 rounded-full"></div> {/* Placeholder avatar */}
+    <div>
+      <p className="text-sm font-medium">{name}</p>
+      <p className="text-xs text-gray-500">{title}</p>
+      <div className="flex text-yellow-400">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span key={i} className={i < rating ? 'text-yellow-400' : 'text-gray-300'}>
+            ★
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const ProfileCard = ({ name, email, jobCount, reputation }) => (
+  <div className="bg-white/80 rounded-lg shadow-md p-4 flex flex-col items-center">
+    <div className="w-20 h-20 bg-gray-300 rounded-full mb-2"></div> {/* Placeholder avatar */}
+    <p className="text-sm font-medium">Hello, {name}!</p>
+    <p className="text-xs text-gray-500">{email}</p>
+    <p className="text-xs text-gray-500">Job Count: {jobCount}</p>
+    <div className="flex items-center gap-1 mt-2">
+      <p className="text-sm font-medium">Reputation</p>
+      <div className="flex text-yellow-400">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span key={i} className={i < reputation ? 'text-yellow-400' : 'text-gray-300'}>
+            ★
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const Dashboard = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const artisans = [
+    { id: 1, name: 'Malik', title: 'Carpenter', rating: 4 },
+    { id: 2, name: 'Malik', title: 'Carpenter', rating: 3 },
+    { id: 3, name: 'Malik', title: 'Carpenter', rating: 5 },
+  ];
+
+  const jobs = [
+    { id: 1, name: 'Malik', title: 'Carpenter', rating: 4 },
+    { id: 2, name: 'Malik', title: 'Carpenter', rating: 3 },
+    { id: 3, name: 'Malik', title: 'Carpenter', rating: 5 },
+  ];
+
+  return (
+    <div className="relative BG_ARTISANS min-h-screen">
+      <div className="container mx-auto p-6">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between border border-stone-300 rounded-full bg-white/80 shadow-md p-2">
+            <input
+              type="text"
+              placeholder="Search for jobs / Services"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 py-2 px-4 rounded-l-full outline-none text-gray-700 placeholder:text-gray-500"
+            />
+            <button className="p-2 rounded-r-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-300">
+              <MdSearch size={24} />
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 bg-white/80 rounded-lg shadow-md p-4">
+            <h2 className="text-lg font-bold mb-4">Find Artisans</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {artisans.map((artisan) => (
+                <ArtisanCard key={artisan.id} {...artisan} />
+              ))}
+            </div>
+            <h2 className="text-lg font-bold mt-6 mb-4">Find Jobs</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {jobs.map((job) => (
+                <JobCard key={job.id} {...job} />
+              ))}
+            </div>
+            <button className="mt-4 w-full bg-blue-500 text-white py-2 rounded-full hover:bg-blue-600 transition-colors duration-300 flex items-center justify-center gap-2">
+              <MdAdd size={20} />
+              Add New
+            </button>
+          </div>
+
+          {/* Main Panel */}
+          <div className="lg:col-span-2 bg-white/80 rounded-lg shadow-md p-6 flex flex-col justify-between">
+            <ReactTyped
+              strings={['CARPENTER ?', 'COOK ?', 'CLEANER ?', 'PLUMBER ?', 'LAUNDRY ?']}
+              className="text-4xl font-bold text-blue-500 mb-4"
+              typeSpeed={120}
+              backSpeed={120}
+              loop
+            />
+            <div className="grid grid-cols-3 gap-4">
+              {artisans.map((artisan) => (
+                <ArtisanCard key={artisan.id} {...artisan} />
+              ))}
+            </div>
+          </div>
+
+          {/* Profile Sidebar */}
+          <div className="lg:col-span-1 bg-white/80 rounded-lg shadow-md p-4">
+            <ProfileCard name="Peter" email="Peterossi188@gmail.com" jobCount={21} reputation={4} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
