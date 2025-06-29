@@ -6,6 +6,7 @@ import LogoW from './Logo-white2.png'
 import Dulachef from './dulachef.png'
 import WW from './WW.png'
 import MW from './MW.png'
+import PF from './PostForm.png'
 
 export {
     D1,
@@ -16,4 +17,5 @@ export {
     Dulachef,
     WW,
     MW,
+    PF,
 }

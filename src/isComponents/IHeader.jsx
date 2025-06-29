@@ -8,17 +8,80 @@ import {
   NotificationNF,
   CleaningNF,
 } from "../assets/icons";
-import { LogoB } from "../assets/images";
 import { MdSearch } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { auth, db } from "../firebase";
+import { doc, getDoc, setDoc, onSnapshot, collection } from "firebase/firestore";
+import SettingsPage from "./SettingsPage";
+import INotifications from "./INotifications";
 
-const IHeader = () => {
+const IHeader = ({ setShowSettings, showSettings, user }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [profileComplete, setProfileComplete] = useState(true);
+  const [profileData, setProfileData] = useState({
+    gender: "",
+    phone: "",
+    age: "",
+    regionalAddress: "",
+    dateOfBirth: "",
+    profession: "",
+    profilePic: "",
+    firstName: "",
+    lastName: "",
+    cvPdf: "",
+  });
+  const [notifications, setNotifications] = useState([]);
 
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const userDoc = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(userDoc);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const [firstName, lastName] = data.name ? data.name.split(" ") : ["", ""];
+          const isComplete =
+            data.gender &&
+            data.phone &&
+            data.age &&
+            data.regionalAddress &&
+            data.dateOfBirth &&
+            data.profession;
+          setProfileComplete(isComplete);
+          setProfileData({
+            gender: data.gender || "",
+            phone: data.phone || "",
+            age: data.age || "",
+            regionalAddress: data.regionalAddress || "",
+            dateOfBirth: data.dateOfBirth || "",
+            profession: data.profession || "",
+            profilePic: data.profilePic || currentUser.photoURL || "",
+            firstName: firstName || "",
+            lastName: lastName || "",
+            cvPdf: data.cvPdf || "",
+            id: data.id || user.email.split("@")[0], // Initialize id from existing data or email name
+          });
+        } else {
+          setProfileComplete(false);
+        }
+      }
+    };
+    checkProfile();
+
+    const unsubscribe = onSnapshot(collection(db, "notifications"), (snapshot) => {
+      const userNotifications = snapshot.docs
+        .filter((doc) => doc.data().toUserId === user?.id)
+        .map((doc) => ({ id: doc.id, ...doc.data() }));
+      setNotifications(userNotifications);
+    }, (err) => console.error("Notification error:", err));
+
+    return () => unsubscribe();
+  }, [user?.id]);
 
   const handleSearchBarBg = () => {
     const searchInput = document.getElementById("searchInput");
@@ -34,7 +97,6 @@ const IHeader = () => {
   const toggleNotifications = () => setIsNotificationsOpen(!isNotificationsOpen);
   const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen);
 
-  // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -44,34 +106,98 @@ const IHeader = () => {
         setIsSettingsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        if (!/^\+?\d{10,15}$/.test(profileData.phone)) {
+          alert("Invalid phone number (10-15 digits required).");
+          return;
+        }
+        if (profileData.age < 18 || profileData.age > 100) {
+          alert("Age must be between 18 and 100.");
+          return;
+        }
+        const dob = new Date(profileData.dateOfBirth);
+        const today = new Date();
+        if (dob >= today) {
+          alert("Date of birth must be in the past.");
+          return;
+        }
+        if (profileData.profession.length < 2) {
+          alert("Profession must be at least 2 characters long.");
+          return;
+        }
+
+        const userDoc = doc(db, "users", currentUser.uid);
+        const updatedId = profileData.firstName && profileData.lastName
+          ? `${profileData.firstName} ${profileData.lastName}`.trim()
+          : user.email.split("@")[0]; // Default to email name
+        await setDoc(userDoc, {
+          ...profileData,
+          id: updatedId,
+          name: `${profileData.firstName} ${profileData.lastName}`.trim() || user.email.split("@")[0],
+          role: profileData.profession ? "artisan" : "customer",
+          rating: profileData.rating || 0,
+        }, { merge: true });
+
+        const isComplete =
+          profileData.gender &&
+          profileData.phone &&
+          profileData.age &&
+          profileData.regionalAddress &&
+          profileData.dateOfBirth &&
+          profileData.profession;
+        setProfileComplete(isComplete);
+        setShowSettings(false);
+        alert("Profile updated successfully! GET IN JOOR!");
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile. Please try again.");
+      }
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleInputChange({
+          target: { name: "profilePic", value: reader.result },
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <header className=" p-2 pt-0 pb-4 flex justify-between items-center font-ComicNeue relative border-b border-stone-200 ">
-      {/* Left Section: Logo or Brand */}
+    <header className="p-2 pt-0 pb-4 flex justify-between items-center relative border-b border-stone-200">
       <div className="font-black text-2xl max-md:text-lg cursor-pointer text-stone-600 hover:text-stone-900 transition-colors duration-200 ease-in-out flex items-center gap-4">
         <div className="flex w-fit gap-2">
-            <img src={CarpenterNF} alt="Carpenter" />
-            <img src={StockpotNF} alt="Cook" />
-            <img src={DryCleaningNF} alt="Dry Cleaning" />
-            <img src={HandymanNF} alt="Handyman" />
-            <img src={CleaningNF} alt="Cleaning" />
-          </div>
+          <img src={CarpenterNF} alt="Carpenter" />
+          <img src={StockpotNF} alt="Cook" />
+          <img src={DryCleaningNF} alt="Dry Cleaning" />
+          <img src={HandymanNF} alt="Handyman" className="max-md:hidden" />
+          <img src={CleaningNF} alt="Cleaning" className="max-md:hidden" />
+        </div>
       </div>
-
-      {/* Right Section: Search and Settings */}
       <div className="flex gap-5 items-center">
-        {/* Mobile Search Icon */}
         <MdSearch
           size={25}
           className="min-md:hidden cursor-pointer"
           onClick={toggleSearch}
         />
-
-        {/* Search Bar (Mobile Panel) */}
         <div
           className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-transform duration-300 ease-in-out ${
             isSearchOpen ? "translate-x-0" : "translate-x-full"
@@ -94,15 +220,13 @@ const IHeader = () => {
               </button>
             </div>
             <button
-              className="mt-4 text-red-500 px-4 py-2 rounded-full font-semibold font-ComicNeue text-sm"
+              className="mt-4 text-red-500 px-4 py-2 rounded-full font-semibold  text-sm"
               onClick={toggleSearch}
             >
               Close
             </button>
           </div>
         </div>
-
-        {/* Desktop Search Bar */}
         <div className="max-md:hidden">
           <div className="flex items-center justify-center w-fit mx-auto rounded-full shadow-sm bg-stone-100 p-1 hover:bg-white transition-colors duration-500 ease-in-out">
             <input
@@ -116,12 +240,10 @@ const IHeader = () => {
               className="p-2 rounded-full bg-ArtisansBlue-100 hover:bg-ArtisansBlue-200 transition-colors duration-200 ease-in-out cursor-pointer"
               onClick={() => alert("Search initiated")}
             >
-              <MdSearch size={20} className="text-white" />
+              <MdSearch size={18} className="text-white" />
             </button>
           </div>
         </div>
-
-        {/* Notification Dropdown */}
         <div className="relative group" ref={notificationRef}>
           <img
             src={NotificationNF}
@@ -129,104 +251,50 @@ const IHeader = () => {
             className="cursor-pointer transition-transform"
             onClick={toggleNotifications}
           />
-          <div
-            className={`absolute bg-gradient-to-br from-stone-100 to-gray-50 dark:from-stone-800 dark:to-gray-900 shadow-lg rounded-lg bottom-[-11.7rem] right-0 p-4 z-20 w-64 ${
-              isNotificationsOpen ? "block" : "hidden"
-            } animate-fadeIn`}
-          >
-            <ul className="space-y-3 font-ComicNeue text-sm text-gray-800 dark:text-gray-200">
-              <li>
-                <button
-                  className="w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between"
-                  onClick={() => {
-                    console.log("Open New Job Alert");
-                    setIsNotificationsOpen(false);
-                  }}
-                >
-                  <span>New Job Alert</span>
-                  <span className="text-xs text-blue-500">Just now</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between"
-                  onClick={() => {
-                    console.log("Open Artisan Application");
-                    setIsNotificationsOpen(false);
-                  }}
-                >
-                  <span>Artisan Application</span>
-                  <span className="text-xs text-green-500">2h ago</span>
-                </button>
-              </li>
-              <li className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                <button
-                  className="w-full text-left text-blue-600 hover:text-blue-700 font-semibold px-3 py-2 rounded-lg transition-colors"
-                  onClick={() => {
-                    console.log("View All Notifications");
-                    setIsNotificationsOpen(false);
-                  }}
-                >
-                  View All
-                </button>
-              </li>
-            </ul>
-          </div>
+          <INotifications
+            isOpen={isNotificationsOpen}
+            setIsOpen={setIsNotificationsOpen}
+            profileComplete={profileComplete}
+            onOpenSettings={() => {
+              setShowSettings(true);
+              setIsNotificationsOpen(false);
+            }}
+            notifications={notifications}
+          />
         </div>
-
-        {/* Settings Dropdown */}
         <div className="relative group" ref={settingsRef}>
           <img
             src={Settings}
             alt="Settings"
-            className="cursor-pointer transition-transform"
-            onClick={toggleSettings}
+            className="cursor-pointer transition-transform hover:scale-110"
+            onClick={() => {
+              setShowSettings(true);
+              setIsSettingsOpen(false);
+            }}
           />
-          <div
-            className={`absolute bg-gradient-to-br from-stone-100 to-gray-50 dark:from-stone-800 dark:to-gray-900 shadow-lg rounded-lg bottom-[-11.7rem] right-0 p-4 z-20 w-64 ${
-              isSettingsOpen ? "block" : "hidden"
-            } animate-fadeIn`}
-          >
-            <ul className="space-y-3 font-ComicNeue text-sm text-gray-800 dark:text-gray-200">
-              <li>
-                <button
-                  className="w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between"
-                  onClick={() => {
-                    console.log("Open Notification Settings");
-                    setIsSettingsOpen(false);
-                  }}
-                >
-                  Notification Settings
-                  <span className="text-xs text-gray-500">Manage alerts</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between"
-                  onClick={() => {
-                    console.log("Open Privacy Settings");
-                    setIsSettingsOpen(false);
-                  }}
-                >
-                  Privacy Settings
-                  <span className="text-xs text-gray-500">Control data</span>
-                </button>
-              </li>
-              <li className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                <button
-                  className="w-full text-left text-red-600 hover:text-red-700 font-semibold px-3 py-2 rounded-lg transition-colors"
-                  onClick={() => {
-                    console.log("Logout");
-                    setIsSettingsOpen(false);
-                  }}
-                >
-                  LOG OUT
-                </button>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
+      {showSettings && (
+        <SettingsPage
+          isProfileFormOpen={showSettings}
+          toggleProfileForm={() => setShowSettings(false)}
+          handleProfileSubmit={handleProfileSubmit}
+          handleInputChange={handleInputChange}
+          profileData={profileData}
+          user={user}
+          onProfileUpdate={(updatedProfile) => {
+            setProfileData(updatedProfile);
+            setProfileComplete(
+              updatedProfile.gender &&
+              updatedProfile.phone &&
+              updatedProfile.age &&
+              updatedProfile.regionalAddress &&
+              updatedProfile.dateOfBirth &&
+              updatedProfile.profession
+            );
+          }}
+        />
+      )}
     </header>
   );
 };

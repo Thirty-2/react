@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer className="bg-ArtisansAsh-300 text-white pt-16 pb-8 px-10 rounded-t-[1.5rem] max-lg:flex-col max-lg:text-center max-lg:gap-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Column 1: Links */}
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-semibold text-stone-100">Explore</h3>
@@ -20,28 +20,6 @@ const Footer = () => {
                 {foot.label}
               </Link>
             ))}
-          </div>
-        </div>
-
-        {/* Column 2: Newsletter Signup */}
-        <div className="flex flex-col gap-6">
-          <h3 className="text-xl font-semibold text-stone-100">Stay Connected</h3>
-          <p className="text-stone-300 font-light">
-            Subscribe to our newsletter for updates and exclusive offers.
-          </p>
-          <div className="flex max-lg:justify-center">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="p-3 rounded-l-md bg-ArtisansAsh-200 text-white placeholder:text-stone-400 border border-stone-200 outline-none focus:ring-2 focus:ring-ArtisansBlue-100 w-64"
-              aria-label="Newsletter email"
-            />
-            <button
-              className="p-3 bg-ArtisansBlue-100 text-white rounded-r-md hover:bg-ArtisansBlue-200 transition-colors duration-300"
-              aria-label="Subscribe to newsletter"
-            >
-              Subscribe
-            </button>
           </div>
         </div>
 

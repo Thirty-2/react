@@ -1,16 +1,18 @@
 import { LogoB } from "../assets/images";
-// import { Cook } from "../assets/icons";
 import {
-  MdVerified,
-  MdCarpenter,
-  MdHandyman,
-  MdLocalLaundryService,
-  MdCleaningServices,
   MdSearch,
   MdMenu,
   MdClose,
-  MdLightMode,
 } from "react-icons/md";
+import {
+  StockpotNF,
+  CarpenterNF,
+  HandymanNF,
+  DryCleaningNF,
+  Settings,
+  NotificationNF,
+  CleaningNF,
+} from "../assets/icons";
 import { navLinks } from "../Constants"; // Removed unused 'buttons'
 import { Link } from "react-router-dom";
 import { ReactTyped } from "react-typed";
@@ -59,19 +61,13 @@ const Header = () => {
             className="bg-ArtisansBlue text-white rounded-full px-6 shadow-md py-2 w-fit mx-auto hover:bg-ArtisansBlue-100 ease-in-out delay-100 duration-300 transition-colors cursor-pointer"
             onClick={() => setIsSignUpOpen(true)} // Open modal
           >
-            Start{" "}
-            <ReactTyped
-              strings={["Working", "Employing"]}
-              typeSpeed={140}
-              backSpeed={140}
-              loop
-            />
+            Start Working
           </div>
         </div>
       </div>
 
       {/* Desktop Header */}
-      <div className="max-lg:hidden flex items-center justify-between px-10 bg-stone-100 shadow-md relative">
+      <div className="max-lg:hidden flex items-center justify-between px-6 bg-stone-100 shadow-md relative">
         {/* <div className="flex flex-col items-center relative gap-2">
           <div className="flex gap-10">
             {navLinks.map((item) => (
@@ -97,27 +93,21 @@ const Header = () => {
             <img src={LogoB} width={120} alt="Artisans Logo" />
           </div>
           <div className="flex w-fit gap-2">
-            <MdCarpenter size={20} />
-            <img src={Cook} alt="Cook-icon" width={20} />
-            <MdCleaningServices size={20} />
-            <MdHandyman size={20} />
-            <MdLocalLaundryService size={20} />
+            <img src={CarpenterNF} alt="Carpenter" />
+            <img src={StockpotNF} alt="Cook" />
+            <img src={DryCleaningNF} alt="Dry Cleaning" />
+            <img src={HandymanNF} alt="Handyman" />
+            <img src={CleaningNF} alt="Cleaning" />
           </div>
         </div>
 
         <div className="flex items-center gap-6">
           <p className="text-shadow-ArtisansAsh-100 opacity-50">Currency</p>
           <div
-            className="bg-ArtisansBlue text-white rounded-full px-6 shadow-md py-2 w-[10.3rem] mx-auto hover:bg-ArtisansBlue-100 ease-in-out delay-100 duration-300 transition-colors cursor-pointer"
+            className="bg-ArtisansBlue text-white rounded-full px-6 shadow-md py-2 w-fit hover:bg-ArtisansBlue-100 ease-in-out delay-100 duration-300 transition-colors cursor-pointer"
             onClick={() => setIsSignUpOpen(true)} // Open modal
           >
-            Start{" "}
-            <ReactTyped
-              strings={["Working", "Employing"]}
-              typeSpeed={140}
-              backSpeed={140}
-              loop
-            />
+            Sign Up
           </div>
         </div>
       </div>

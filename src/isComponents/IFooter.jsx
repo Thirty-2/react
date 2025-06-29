@@ -3,8 +3,8 @@ import { FaFacebookF,FaTwitter, FaInstagram  } from 'react-icons/fa'
 
 const IFooter = () => {
   return (
-      <footer className='flex items-center justify-between font-ComicNeue'>
-        <div className="font-black text-3xl max-md:text-xl font-ComicNeue cursor-pointer text-stone-600 hover:text-stone-900 duration-200 ease-in-out">
+      <footer className='flex items-center justify-between '>
+        <div className="font-black text-3xl max-md:text-xl  cursor-pointer text-stone-600 hover:text-stone-900 duration-200 ease-in-out">
           ARTISANS
         </div>
         <div className="flex gap-4 max-lg:justify-center">

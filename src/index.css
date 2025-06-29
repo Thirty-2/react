@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Tsukimi+Rounded&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Niconne&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Quicksand:wght@300..700&display=swap');
 
 @import "tailwindcss";
 
@@ -22,6 +23,7 @@
     --font-montserrat: 'Montserrat', 'sans-serif';
     --font-Raleway: 'Raleway', 'sans-serif';
     --font-OpenSans: 'Open Sans', 'sans-serif';
+   --font-Quicksand: 'Quicksand', 'sans-serif';
 
     --radius-IHome: 1.5rem;
 
@@ -122,6 +124,10 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+body{
+  font-family: 'Quicksand', sans-serif !important;
 }
 
 @media (min-width:1000px) {

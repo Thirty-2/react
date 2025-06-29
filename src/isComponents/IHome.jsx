@@ -1,212 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsStar, BsStarFill, BsStarHalf, BsViewList } from "react-icons/bs";
 import { IoLocation } from "react-icons/io5";
-import { WW, MW } from "../assets/images";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase"; // Import db from firebase.js
 
 const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
-  const [jobs, setJobs] = useState([
-    {
-      image: "https://via.placeholder.com/48?text=Bakery",
-      poster: "Bakery",
-      position: "Senior Graphic Designer",
-      location: "Austin, TX",
-      featured: true,
-      jobType: true,
-    },
-    {
-      image: "https://via.placeholder.com/48?text=TechCo",
-      poster: "TechCo",
-      position: "Software Engineer",
-      location: "San Francisco, CA",
-      featured: false,
-      jobType: true,
-    },
-  ]);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const displayLimit = 3; // Limit to 3 jobs, no pagination
 
-  const [user, setUser] = useState({
-    name: "Peter",
-    gender: "male",
-    profilePic: null,
-  });
+  // Utility function to trim text
+  const trimText = (text, maxLength) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
-  const userImage = user.gender === "male" ? MW : WW;
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
+      const fetchedJobs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        position: doc.data().job1 || "Untitled Job", // Map job1 to position
+        poster: doc.data().customerId || "Unknown Customer", // Map customerId to poster
+        description: doc.data().description || "No description", // Add description
+        status: doc.data().status || "unknown",
+        createdAt: doc.data().createdAt || new Date(),
+        artisanId: doc.data().artisanId || null,
+        // Placeholder fields (remove if not needed)
+        image: "https://via.placeholder.com/48?text=Logo",
+        jobType: doc.data().status === "open" ? "Remote" : null, // Example mapping
+        featured: doc.data().status === "open", // Example mapping
+      }));
+      setJobs(fetchedJobs);
+      setLoading(false);
+    }, (err) => {
+      setError("Failed to load jobs. Please try again later.");
+      console.error("Snapshot error:", err);
+      setLoading(false);
+    });
 
-  const [jobCount, setJobCount] = useState(21);
-  const rating = 4.5;
-  const userProfilePic = "https://via.placeholder.com/80";
-  const artisanAvatars = [
-    "https://via.placeholder.com/60?text=A1",
-    "https://via.placeholder.com/60?text=A2",
-    "https://via.placeholder.com/60?text=A3",
-    "https://via.placeholder.com/60?text=A4",
-  ];
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, []);
 
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    if (i <= Math.floor(rating)) {
-      stars.push(<BsStarFill key={i} className="text-yellow-300" />);
-    } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
-      stars.push(<BsStarHalf key={i} className="text-yellow-300" />);
-    } else {
-      stars.push(<BsStar key={i} className="text-yellow-300" />);
-    }
-  }
-
-  const [activeProjects, setActiveProjects] = useState(3);
+  if (loading) return <div className="p-4 text-center">Loading jobs...</div>;
+  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
   return (
-    <div className="min-md:pt-10 rounded-md font-ComicNeue max-h-[90vh]  relative">
-      <div className="grid grid-cols-1 h-full min-lg:grid-cols-5 gap-4">
-        {/* First Column */}
-        <div className="flex flex-col ">
-          <div className="flex flex-col justify-between h-full gap-6">
-            <div className="text-center">
-              <h1 className="text-xl lg:text-2xl font-semibold">
-                Hello <span>{user.name}</span>!
-              </h1>
-              <h1 className="font-ComicNeue">Welcome Back...</h1>
-            </div>
-
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-fit p-1">
-                <img
-                  src={userProfilePic}
-                  alt="Peter's profile picture"
-                  className="w-20 h-20 rounded-full"
-                />
-              </div>
-              <div className="text-center">
-                <h1 className="text-md font-ComicNeue">Current Job Count</h1>
-                <span className="text-xl lg:text-2xl font-bold font-ComicNeue">
-                  {jobCount}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <h1 className="text-md lg:text-lg font-semibold font-ComicNeue">
-                Keep Pushing!
-              </h1>
-            </div>
-
-            <div className="text-center">
-              <h1 className="text-md font-ComicNeue">My Rating</h1>
-              <div className="flex justify-center text-2xl">{stars}</div>
-            </div>
-
-            <div className="rounded-lg p-4 space-y-3">
-              <h1 className="font-semibold font-ComicNeue">Top Rated</h1>
-              <p className="font-thin font-ComicNeue">The best of the best</p>
-              <div className="flex justify-between">
-                {artisanAvatars.map((avatar, index) => (
-                  <div
-                    key={index}
-                    className="w-fit bg-stone-200 rounded-full shadow-md"
-                  >
-                    <img
-                      src={avatar}
-                      alt={`Top artisan ${index + 1} avatar`}
-                      className="w-10 h-10 rounded-full"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Second Column */}
-        <div className="bg-stone-50 p-6 rounded-lg min-lg:col-span-3 flex flex-col gap-4 h-full w-full">
+    <div className="min-md:pt-1 rounded-md  relative overflow-y-auto w-full h-screen">
+      <div className="gap-4">
+        {/* Second Column (Spanning 3 columns on lg screens) */}
+        <div className="rounded-lg flex flex-col gap-2 h-full w-full">
           <div>
-            <h1 className="text-xl font-semibold font-ComicNeue mb-4">
+            <h1 className="text-xl font-semibold  mb-4">
               Recent Job Posts
             </h1>
           </div>
-          {jobs.map((job, index) => (
+          {jobs.slice(0, displayLimit).map((job, index) => (
             <div
               key={index}
-              className="rounded-lg border border-stone-200 overflow-hidden relative group hover:scale-101 transition-all duration-500"
+              className="rounded-lg bg-white border border-stone-200 overflow-hidden relative group shadow-sm"
             >
-              <div className="p-3 flex items-center gap-6">
-                <div className="w-12 h-12 flex items-center justify-center rounded">
+              <div className="py-1 px-4 flex items-center gap-6">
+                <div className="w-12 h-12 flex items-center justify-center rounded ">
                   <img
                     src={job.image || "https://via.placeholder.com/48?text=Logo"}
                     alt={`${job.poster} logo`}
                     className="w-12 h-12 rounded"
                   />
                 </div>
+
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-md font-semibold font-ComicNeue">
+                    <h2 className="text-md font-semibold ">
                       {job.poster}
                     </h2>
                   </div>
-                  <h3 className="text-lg font-light font-ComicNeue text-gray-800">
-                    {job.position}
+                  <h3 className=" max-lg:hidden text-lg font-light  text-gray-800">
+                    {job.position} {/* Full text on larger screens */}
                   </h3>
-                  <p className="text-gray-600 text-xs font-ComicNeue font-thin">
-                    {job.location}
+                  {/* MIN - Trimmed text on smaller screens */}
+                  <h3 className="min-lg:hidden text-lg font-light  text-gray-800">
+                    {trimText(job.position, 15)} 
+                  </h3>
+                  <p className="text-gray-600 text-xs  font-thin">
+                    {trimText(job.description, 20)} 
                   </p>
                 </div>
                 {job.jobType && (
                   <span className="text-xs font-semibold px-2 py-1 flex items-center gap-1 text-slate-800">
                     <IoLocation fill="gray" />
-                    Remote
-                  </span>
-                )}
-                {job.featured && (
-                  <span className="bg-blue-200 text-blue-700 text-xs font-semibold px-4 py-1 rounded-md border border-blue-300">
-                    Featured
+                    {job.jobType}
                   </span>
                 )}
               </div>
-              <div className="absolute inset-0  bg-opacity-90 flex items-center justify-end gap-2 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-ComicNeue transition-colors duration-300 hover:bg-gray-300">
-                  View job
+              <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-end gap-2 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button className="bg-gray-200 text-gray-800 px-4 py-1 rounded-md text-sm  transition-colors duration-300 hover:bg-gray-300">
+                  View
                 </button>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-ComicNeue hover:bg-blue-600 transition-colors duration-300">
-                  Apply now
+                <button className="bg-blue-500 text-white px-4 py-1 rounded-md text-sm  hover:bg-blue-600 transition-colors duration-300">
+                  Apply
                 </button>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Third Column */}
-        <div className="bg-Asphalt rounded-lg p-3 text-white flex flex-col gap-6 justify-between h-full ">
-          <div className= " p-4 rounded-lg flex flex-col gap-6">
-            <div>
-              <h1 className="text-xl font-semibold font-ComicNeue text-ArtisansBlue-100">
-                My Performance
-              </h1>
-              <p className="font-thin font-ComicNeue">Performance Overview</p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              
-              <p className="font-ComicNeue">
-                My Rating: <span className="font-bold">{rating}/5</span>
-                <span className="text-green-400 ml-2">(+0.2 this month)</span>
-              </p>
-              <p className="font-ComicNeue">
-                Active Jobs: <span className="font-bold">{activeProjects}</span>
-              </p>
-              <p className="font-ComicNeue">
-                Completion Rate: <span className="font-bold">85%</span>
-                <span className="text-blue-400 ml-2">of 100%</span>
-              </p>
-            </div>
-          </div>
-          <div className="bg-stone-100 p-2 rounded-lg flex justify-center shadow-md w-fit">
-            <img src={userImage} alt="" />
-          </div>
-          <div className="flex flex-col gap-1 text-center p-2">
-            <p className="font-thin font-ComicNeue text-sm">
-              Updated: {new Date().toLocaleDateString()}
-            </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-ComicNeue text-sm transition-colors duration-300 flex gap-2 items-center justify-center w-full">
-              <BsViewList />Detailed Report
-            </button>
-          </div>
         </div>
       </div>
     </div>
