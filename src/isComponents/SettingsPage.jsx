@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, db, saveUserToFirestore } from "../firebase";
 import { FaSpinner } from "react-icons/fa";
+import { CustomAlert } from "../isComponents";
 
 const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmit, handleInputChange, profileData, user, onProfileUpdate }) => {
   const [activeSection, setActiveSection] = useState("profile");
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [isProfileSaved, setIsProfileSaved] = useState(false); // Track if profile has been saved
+  const [alert, setAlert] = useState({ show: false, message: "", type: "info" }); // State for custom alert
   const settingsRef = useRef(null);
 
   const handleLogout = async () => {
@@ -16,7 +19,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
       toggleProfileForm();
     } catch (error) {
       console.error("Logout error:", error);
-      alert("Failed to log out. Please try again.");
+      showAlert("Failed to log out. Please try again.", "error");
     }
   };
 
@@ -44,7 +47,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
       };
       reader.readAsDataURL(file);
     } else {
-      alert("Please upload a PDF file.");
+      showAlert("Please upload a PDF file.", "error");
     }
   };
 
@@ -62,6 +65,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
         const updatedProfile = { ...profileData, id: updatedId };
         await saveUserToFirestore(currentUser.uid, updatedProfile);
         onProfileUpdate(updatedProfile); // Pass updated profile to parent
+        setIsProfileSaved(true); // Mark profile as saved after successful save
       }
       setSaveMessage("Changes Saved!");
       setTimeout(() => setSaveMessage(""), 2000);
@@ -72,6 +76,14 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const showAlert = (message, type = "info") => {
+    setAlert({ show: true, message, type });
+  };
+
+  const hideAlert = () => {
+    setAlert((prev) => ({ ...prev, show: false }));
   };
 
   useEffect(() => {
@@ -89,12 +101,12 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div
-        className=" rounded-xl w-full max-w-4xl h-[80vh] flex overflow-hidden"
+        className="rounded-xl w-full max-w-4xl h-[80vh] flex overflow-hidden"
         ref={settingsRef}
       >
         {saveMessage && (
           <div
-            className={`w-full bg-${isSaving ? "ArtisansBlue-100" : saveMessage.includes("Saved") ? "green-500" : "red-500"} text-white p-2 text-center  transition-all duration-300 ease-in-out ${
+            className={`w-full bg-${isSaving ? "ArtisansBlue-100" : saveMessage.includes("Saved") ? "green-500" : "red-500"} text-white p-2 text-center transition-all duration-300 ease-in-out ${
               isSaving ? "animate-pulse" : ""
             }`}
           >
@@ -106,7 +118,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
           <ul className="space-y-3">
             <li>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg  text-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg text-lg ${
                   activeSection === "profile"
                     ? "bg-ArtisansBlue-100 text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-200 hover:shadow-sm"
@@ -118,7 +130,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
             </li>
             <li>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg  text-lg ${
+                className={`w-full text-left px-4 py-2 rounded-lg text-lg ${
                   activeSection === "notifications"
                     ? "bg-ArtisansBlue-100 text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-200 hover:shadow-sm"
@@ -130,24 +142,24 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
             </li>
             <li>
               <div>
-              <button
-                className="px-6 py-2 text-red-500  rounded-lg text-lg cursor-pointer hover:text-red-700 transition-colors"
-                onClick={handleLogout}
-              >
-                Sign Out
-              </button>
-            </div>
+                <button
+                  className="px-6 py-2 text-red-500 rounded-lg text-lg cursor-pointer hover:text-red-700 transition-colors"
+                  onClick={handleLogout}
+                >
+                  Sign Out
+                </button>
+              </div>
             </li>
           </ul>
         </div>
         <div className="w-3/4 p-6 overflow-y-auto bg-white rounded-r-xl shadow-inner">
           {activeSection === "profile" && (
             <div>
-              <h2 className="text-2xl font-bold  text-gray-900 mb-6 border-b border-gray-200 pb-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">
                 Profile Settings
               </h2>
               <div className="mb-6">
-                <label className="block text-base  text-gray-700 mb-2">Profile Picture</label>
+                <label className="block text-base text-gray-700 mb-2">Profile Picture</label>
                 <div className="flex items-center gap-6">
                   <img
                     src={profileData.profilePic || user.profilePic || "https://via.placeholder.com/100"}
@@ -164,7 +176,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
               </div>
               <form onSubmit={enhancedHandleProfileSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="firstName">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="firstName">
                     First Name
                   </label>
                   <input
@@ -178,7 +190,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="lastName">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="lastName">
                     Last Name
                   </label>
                   <input
@@ -191,7 +203,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="gender">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="gender">
                     Gender
                   </label>
                   <select
@@ -200,6 +212,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                     value={profileData.gender}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ArtisansBlue-100 focus:border-ArtisansBlue-100 text-sm bg-white"
+                    disabled={isProfileSaved && !!profileData.gender} // Lock only after first save
                     required={!profileData.gender}
                   >
                     <option value="">Select Gender</option>
@@ -207,9 +220,12 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                     <option value="female">Female</option>
                     <option value="other">Other</option>
                   </select>
+                  {isProfileSaved && profileData.gender && (
+                    <p className="text-xs text-gray-500 mt-1">Gender cannot be changed once set.</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="phone">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="phone">
                     Phone Number
                   </label>
                   <input
@@ -223,7 +239,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="age">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="age">
                     Age
                   </label>
                   <input
@@ -237,7 +253,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="regionalAddress">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="regionalAddress">
                     Address
                   </label>
                   <input
@@ -251,7 +267,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="dateOfBirth">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="dateOfBirth">
                     Date of Birth
                   </label>
                   <input
@@ -265,7 +281,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="profession">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="profession">
                     Profession
                   </label>
                   <input
@@ -279,7 +295,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="bio">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="bio">
                     Biography
                   </label>
                   <textarea
@@ -292,7 +308,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2" htmlFor="cvPdf">
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="cvPdf">
                     Upload CV (PDF)
                   </label>
                   <input
@@ -304,17 +320,31 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ArtisansBlue-100 focus:border-ArtisansBlue-100 text-sm"
                   />
                 </div>
+                <div>
+                  <label className="block text-base text-gray-700 mb-2" htmlFor="socialMediaHandle">
+                    Social Media Handle
+                  </label>
+                  <input
+                    type="text"
+                    id="socialMediaHandle"
+                    name="socialMediaHandle"
+                    value={profileData.socialMediaHandle || ""}
+                    onChange={handleInputChange}
+                    placeholder="Copy and paste your social media link"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ArtisansBlue-100 focus:border-ArtisansBlue-100 text-sm"
+                  />
+                </div>
                 <div className="flex justify-end gap-6 mt-8">
                   <button
                     type="button"
-                    className="px-6 py-2 text-red-600  text-lg hover:text-red-800 transition-colors"
+                    className="px-6 py-2 text-red-600 text-lg hover:text-red-800 transition-colors"
                     onClick={toggleProfileForm}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-ArtisansBlue-100 text-white rounded-lg  text-lg hover:bg-ArtisansBlue-200 transition-colors shadow-md"
+                    className="px-6 py-2 bg-ArtisansBlue-100 text-white rounded-lg text-lg hover:bg-ArtisansBlue-200 transition-colors shadow-md"
                   >
                     Save
                   </button>
@@ -324,12 +354,12 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
           )}
           {activeSection === "notifications" && (
             <div>
-              <h2 className="text-2xl font-bold  text-gray-900 mb-6 border-b border-gray-200 pb-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">
                 Notification Settings
               </h2>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-base  text-gray-700 mb-2">
+                  <label className="block text-base text-gray-700 mb-2">
                     Enable Notifications
                   </label>
                   <input
@@ -340,7 +370,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   />
                 </div>
                 <button
-                  className="px-6 py-2 bg-ArtisansBlue-100 text-white rounded-lg  text-lg hover:bg-ArtisansBlue-200 transition-colors shadow-md"
+                  className="px-6 py-2 bg-ArtisansBlue-100 text-white rounded-lg text-lg hover:bg-ArtisansBlue-200 transition-colors shadow-md"
                   onClick={() => {
                     console.log("Notifications saved:", notificationEnabled);
                     toggleProfileForm();
@@ -353,6 +383,13 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
           )}
         </div>
       </div>
+      {alert.show && (
+        <CustomAlert
+          message={alert.message}
+          type={alert.type}
+          onClose={hideAlert}
+        />
+      )}
     </div>
   );
 };

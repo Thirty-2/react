@@ -51,7 +51,7 @@ const IEndSidebar = ({ user, jobCount, activeProjects, userId }) => {
       <div className="p-4 rounded-lg flex flex-col gap-3">
         <div>
           <h1 className="text-xl lg:text-2xl font-semibold">
-            Hello <span>{`${user.firstName} ${user.lastName}`.trim() || user.name || googleName}!</span>
+            Hello <span className="capitalize">{`${user.firstName} ${user.lastName}`.trim() || user.name || googleName}!</span>
           </h1>
         </div>
         <div className="flex flex-col justify-between gap-1">

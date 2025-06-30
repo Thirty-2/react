@@ -11,8 +11,7 @@ import {
 import { MdSearch } from "react-icons/md";
 import { auth, db } from "../firebase";
 import { doc, getDoc, setDoc, onSnapshot, collection } from "firebase/firestore";
-import SettingsPage from "./SettingsPage";
-import INotifications from "./INotifications";
+import { SettingsPage, INotifications, CustomAlert } from "../isComponents";
 
 const IHeader = ({ setShowSettings, showSettings, user }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -32,6 +31,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
     cvPdf: "",
   });
   const [notifications, setNotifications] = useState([]);
+  const [alert, setAlert] = useState({ show: false, message: "", type: "info" }); // State for custom alert
 
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
@@ -116,21 +116,21 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
     if (currentUser) {
       try {
         if (!/^\+?\d{10,15}$/.test(profileData.phone)) {
-          alert("Invalid phone number (10-15 digits required).");
+          showAlert("Invalid phone number (10-15 digits required).", "error");
           return;
         }
         if (profileData.age < 18 || profileData.age > 100) {
-          alert("Age must be between 18 and 100.");
+          showAlert("Age must be between 18 and 100.", "error");
           return;
         }
         const dob = new Date(profileData.dateOfBirth);
         const today = new Date();
         if (dob >= today) {
-          alert("Date of birth must be in the past.");
+          showAlert("Date of birth must be in the past.", "error");
           return;
         }
         if (profileData.profession.length < 2) {
-          alert("Profession must be at least 2 characters long.");
+          showAlert("Profession must be at least 2 characters long.", "error");
           return;
         }
 
@@ -155,10 +155,10 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
           profileData.profession;
         setProfileComplete(isComplete);
         setShowSettings(false);
-        alert("Profile updated successfully! GET IN JOOR!");
+        showAlert("Profile updated successfully! GET IN JOOR!", "success");
       } catch (error) {
         console.error("Error updating profile:", error);
-        alert("Failed to update profile. Please try again.");
+        showAlert("Failed to update profile. Please try again.", "error");
       }
     }
   };
@@ -179,6 +179,14 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const showAlert = (message, type = "info") => {
+    setAlert({ show: true, message, type });
+  };
+
+  const hideAlert = () => {
+    setAlert((prev) => ({ ...prev, show: false }));
   };
 
   return (
@@ -214,13 +222,13 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
               />
               <button
                 className="p-2 rounded-full bg-ArtisansBlue-100 hover:bg-ArtisansBlue-200 transition-colors duration-200 ease-in-out cursor-pointer"
-                onClick={() => alert("Search initiated")}
+                onClick={() => showAlert("Search initiated", "info")}
               >
                 <MdSearch size={20} className="text-white" />
               </button>
             </div>
             <button
-              className="mt-4 text-red-500 px-4 py-2 rounded-full font-semibold  text-sm"
+              className="mt-4 text-red-500 px-4 py-2 rounded-full font-semibold text-sm"
               onClick={toggleSearch}
             >
               Close
@@ -238,7 +246,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
             />
             <button
               className="p-2 rounded-full bg-ArtisansBlue-100 hover:bg-ArtisansBlue-200 transition-colors duration-200 ease-in-out cursor-pointer"
-              onClick={() => alert("Search initiated")}
+              onClick={() => showAlert("Search initiated", "info")}
             >
               <MdSearch size={18} className="text-white" />
             </button>
@@ -293,6 +301,13 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
               updatedProfile.profession
             );
           }}
+        />
+      )}
+      {alert.show && (
+        <CustomAlert
+          message={alert.message}
+          type={alert.type}
+          onClose={hideAlert}
         />
       )}
     </header>

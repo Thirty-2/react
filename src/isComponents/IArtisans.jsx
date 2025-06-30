@@ -31,6 +31,8 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
             id: doc.id,
             firstName,
             lastName,
+            phone: data.phone || "N/A",
+            email: data.email || "N/A",
             name: `${firstName} ${lastName}`.trim() || "Unknown User",
             gender: data.gender || "unknown",
             profession: data.profession || "Unknown",
@@ -153,11 +155,12 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
           {currentArtisans.map((user) => (
             <div
               key={user.id}
-              className="bg-stone-100 shadow-sm rounded-lg py-3 px-2 cursor-pointer"
+              className="bg-stone-100 shadow-sm rounded-lg p-3 cursor-pointer"
               onClick={() => handleViewArtisan(user)}
             >
               <div className="flex items-center justify-between min-lg:gap-1">
-                <img
+                <div className="flex gap-6 items-center">
+                  <img
                   src={user.profilePic}
                   alt={`${user.name}'s profile picture`}
                   className="w-14 h-14 object-cover bg-black rounded-full shadow-md"
@@ -166,7 +169,7 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
                   <p className="bg-ButterYellow w-fit px-4 rounded-sm font-semibold text-sm">
                     {user.profession}
                   </p>
-                  <h3 className="text-md font-bold text-stone-800 drk:text-white">
+                  <h3 className="text-md font-bold text-stone-800 drk:text-white capitalize">
                     {trimText(user.name, 20)}
                   </h3>
                   <div className="space-y-2">
@@ -179,6 +182,7 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
                       />
                     </p>
                   </div>
+                </div>
                 </div>
                 <div className="flex flex-col items-center justify-center gap-2 text-sm">
                   <button
@@ -194,7 +198,7 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
                   </button>
                   <button
                     type="button"
-                    className="bg-black text-white rounded-md p-1 w-fit"
+                    className="hover:bg-black hover:text-white transition-all duration-300 ease-in-out rounded-md p-1 w-fit"
                     onClick={async (e) => {
                       e.stopPropagation();
                       await handleRequestArtisan(user.id);
@@ -218,7 +222,7 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
                 className="m-2 hover:scale-105 hover:text-red-400 transition-all duration-200 ease-in-out text-white"/>
               </div>
 
-              <div className="mt-[-10%] flex flex-col items-center gap-2 mb-10">
+              <div className="mt-[-10%] flex flex-col items-center gap-2 mb-10 ">
                 <div className="items-center flex flex-col gap-1">
                   <div className="bg-white p-1.5 w-fit rounded-full ">
                     <img
@@ -230,25 +234,28 @@ const IArtisans = ({ setShowExpandedArtisans, userId }) => {
                   <h2 className="text-sm text-stone-500 font-light">
                     {selectedArtisan.email}
                   </h2>
-                  <h2 className="text-2xl font-bold mb-4 capitalize">
+                  <h2 className="text-2xl font-bold capitalize">
                     {selectedArtisan.name}
                   </h2>
                 </div>
 
                 <div className="flex text-sm gap-2 font-light">
-                  <p className="">{selectedArtisan.profession}</p>-
-                  <p>4 years of experience</p>
-                </div>
-
-                <div className="flex gap-2 font-light items-center">
-                  <p>{selectedArtisan.regionalAddress || "N/A"}</p>
-                  |
+                  <p className="">{selectedArtisan.profession}</p>|
+                  <h2 className="text-sm text-stone-500 font-light">
+                    {selectedArtisan.phone}
+                  </h2>|
                   <RatingComponent
                         artisanId={selectedArtisan.id}
                         rating={selectedArtisan.rating}
                         userId={selectedArtisan}
                         readOnly={true}
                       />
+                </div>
+
+                <div className="font-light text-sm flex flex-col items-center text-center gap-2">
+                  <p className="w-[70%]">{selectedArtisan.regionalAddress || "N/A"}</p>
+                  
+                  
                 </div>
 
                 <p className="italic">"{selectedArtisan.bio}"</p>
