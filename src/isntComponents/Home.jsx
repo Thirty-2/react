@@ -69,7 +69,7 @@ const Home = () => {
                 "DRY CLEANER ?",
               ]}
               className="text-ArtisansBlue-100 font-black text-3xl md:text-5xl"
-              typeSpeed={200}
+              typeSpeed={150}
               backSpeed={100}
               loop
             />
