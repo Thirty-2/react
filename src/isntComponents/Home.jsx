@@ -82,23 +82,33 @@ const Home = () => {
 
       <div className="mx-auto items-center text-center flex flex-col gap-10">
         <div className="grid grid-cols-2  min-md:grid-cols-5 gap-10 min-lg:gap-30">
-          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out">
+          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out"
+          onClick={() => setIsSignUpOpen(true)}
+          >
             <img src={CarpenterNF} alt="Carpenter" />
           </div>
 
-          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out">
+          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out"
+          onClick={() => setIsSignUpOpen(true)}
+          >
             <img src={StockpotNF} alt="Cook" />
           </div>
 
-          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out">
+          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out"
+          onClick={() => setIsSignUpOpen(true)}
+          >
             <img src={DryCleaningNF} alt="Dry Cleaning" />
           </div>
 
-          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out">
+          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out"
+          onClick={() => setIsSignUpOpen(true)}
+          >
             <img src={HandymanNF} alt="Handyman" />
           </div>
 
-          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out max-md:hidden">
+          <div className="bg-Paper p-6 rounded-full shadow-lg w-fit hover:bg-ArtisansBlue-100 transition-colors duration-500 ease-in-out max-md:hidden"
+          onClick={() => setIsSignUpOpen(true)}
+          >
             <img src={CleaningNF} alt="Cleaning" />
           </div>
         </div>
