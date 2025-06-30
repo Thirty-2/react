@@ -78,12 +78,8 @@ const IPostjobs = ({ setShowPostJobForm }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.jobTitle.trim() || !formData.levelOfExperience || !formData.jobLocation || !formData.position || !formData.jobCategory || !formData.description.trim() || !formData.paymentAmount) {
-        showAlert("Please fill all required fields, including payment amount.", "error");
-        return;
-      }
-      if (isNaN(formData.paymentAmount) || formData.paymentAmount <= 0) {
-        showAlert("Please enter a valid payment amount greater than 0.", "error");
+      if (!formData.jobTitle.trim() || !formData.levelOfExperience || !formData.jobLocation || !formData.position || !formData.jobCategory || !formData.description.trim() ) {
+        showAlert("The Job Has Been Posted");
         return;
       }
 
@@ -256,7 +252,7 @@ const IPostjobs = ({ setShowPostJobForm }) => {
                     />
                     
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 dar:text-gray-300">Payment Amount and currency</label>
                     <input
                       type="number"
@@ -268,7 +264,7 @@ const IPostjobs = ({ setShowPostJobForm }) => {
                       placeholder="Amount"
                       className="mt-2 p-2 drk:bg-gray-600 border border-gray-200 drk:border-gray-500 rounded-md text-gray-800 drk:text-gray-200 w-full"
                     />
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col gap-4 w-fit">
                   <div className="radio flex gap-10 items-center border p-4 rounded-md border-stone-100 bg-blue-50">

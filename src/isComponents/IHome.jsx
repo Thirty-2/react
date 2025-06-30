@@ -12,7 +12,7 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
-  const displayLimit = 3;
+  const displayLimit = 6;
 
   const trimText = (text, maxLength) => {
     if (text.length <= maxLength) return text;

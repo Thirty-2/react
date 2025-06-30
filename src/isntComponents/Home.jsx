@@ -44,10 +44,8 @@ const Home = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               The Artisans Marketplace
             </h1>
-            <p className="text-md text-stone-400 mb-6 md:w-[50%] lg:w-[30%]">
+            <p className="text-md text-stone-300 mb-6 md:w-[50%] lg:w-[30%]">
               The Artisans Marketplace is a platform that connects artisans with customers. We provide a platform for artisans to showcase their products and services to the world.
-
-
             </p>
             <div
               className="bg-ArtisansBlue text-white rounded-full px-6 shadow-md py-2 w-fit mx-auto md:m-0 hover:bg-ArtisansBlue-100 transition-colors duration-300 ease-in-out cursor-pointer"
