@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { BsStar, BsStarFill, BsStarHalf, BsViewList } from "react-icons/bs";
-import { IoLocation } from "react-icons/io5";
 import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
-import { db, auth } from "../firebase";
-import { X, LocateIcon, Briefcase } from "lucide-react";
-import { PlusCircle, EyeIcon, LockOpen } from "lucide-react";
+import { db } from "../firebase";
+import { LocateIcon, Briefcase, LockOpen } from "lucide-react";
 import { BsCash } from "react-icons/bs";
+import {JobDetailsModal} from "../isComponents";
 
 const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
   const [jobs, setJobs] = useState([]);
@@ -22,7 +20,6 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
   useEffect(() => {
     const fetchUserProfilePic = async (postedBy) => {
       try {
-        // Assuming postedBy might be an email or display name; adjust if it's a uid
         const userDoc = doc(db, "users", postedBy.includes("@") ? postedBy.split("@")[0] : postedBy);
         const userSnap = await getDoc(userDoc);
         return userSnap.exists() ? userSnap.data().profilePic : "https://via.placeholder.com/48?text=Logo";
@@ -59,7 +56,6 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
           };
         });
         const fetchedJobs = await Promise.all(jobPromises);
-        // Filter jobs posted within the last 5 days and with status "open"
         const fiveDaysAgo = new Date();
         fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
         const filteredJobs = fetchedJobs.filter((job) => {
@@ -115,23 +111,11 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
                       <div className="flex justify-between">
                         <div className="">
                           <h3 className="text-lg font-black">{job.jobTitle}</h3>
-                          <p className="text-gray-600 text-sm font-light">{job.description}</p>
+                          <p className="text-gray-600 text-sm font-light">
+                            {trimText(job.description, 100)}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        className="border border-stone-400 rounded-md px-2 py-1.5 w-full text-center"
-                        onClick={() => handleJobClick(job)}
-                      >
-                        View <EyeIcon className="inline-block ml-2" size={13} />
-                      </button>
-                      <button
-                        className="bg-black text-white transition-all duration-300 ease-in-out rounded-md px-2 w-fit flex items-center"
-                        onClick={() => handleJobClick(job)}
-                      >
-                        Apply <PlusCircle className="inline-block ml-2" size={13} />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -158,20 +142,10 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
               </div>
               <hr className="w-[95%] text-stone-200 m-auto" />
               <div className="w-full flex items-center justify-between rounded p-2.5">
-                <div className="flex gap-4 items-center">
-                  <img
-                    src={job.profilePic || "https://via.placeholder.com/48?text=Logo"}
-                    alt={`${job.postedBy} logo`}
-                    className="w-8 h-8 rounded-full object-cover shadow-sm"
-                  />
-                  <div className="">
-                    <p className="font-semibold text-slate-900 capitalize">{job.postedBy}</p>
-                    <p className="text-[10px] font-thin">
-                      Posted on{" "}
-                      {job.postedDate ? new Date(job.postedDate).toLocaleDateString() : ""}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-[10px] font-thin ml-4">
+                  Posted on{" "}
+                  {job.postedDate ? new Date(job.postedDate).toLocaleDateString() : ""}
+                </p>
                 <div className="p-2 bg-blue-200 text-blue-900 rounded-md w-fit">
                   <p className="text-xs font-semibold">
                     Apply Before{" "}
@@ -184,63 +158,7 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
         </div>
       </div>
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-end z-50">
-          <div className="bg-white p-6 rounded-md w-full h-[95%]">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold mb-4">Job Details</h2>
-              <div className="hover:text-red-500" onClick={closeModal}>
-                <X />
-              </div>
-            </div>
-            <div className="space-y-4">
-              <p>
-                <strong>Job Title:</strong> {selectedJob.jobTitle}
-              </p>
-              <p>
-                <strong>Position:</strong> {selectedJob.position}
-              </p>
-              <p>
-                <strong>Employment Type:</strong> {selectedJob.employmentType}
-              </p>
-              <p>
-                <strong>Remote Work Options:</strong> {selectedJob.remoteWorkOptions}
-              </p>
-              <p>
-                <strong>Level of Experience:</strong> {selectedJob.levelOfExperience}
-              </p>
-              <p>
-                <strong>Age Preferred:</strong> {selectedJob.jobCategory}
-              </p>
-              <p>
-                <strong>Open Positions:</strong> {selectedJob.openPositions}
-              </p>
-              <p>
-                <strong>Description:</strong> {selectedJob.description}
-              </p>
-              <p>
-                <strong>Location:</strong> {selectedJob.jobLocation}
-              </p>
-              <p>
-                <strong>Posted By:</strong> {selectedJob.postedBy}
-              </p>
-              <p>
-                <strong>Posted Date:</strong> {new Date(selectedJob.postedDate).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Status:</strong> {selectedJob.status}
-              </p>
-              <p>
-                <strong>Gender Preference:</strong> {selectedJob.gender.length > 0 ? selectedJob.gender.join(", ") : "None"}
-              </p>
-              <p>
-                <strong>CV Requirement:</strong> {selectedJob.cvrequirement}
-              </p>
-              <p>
-                <strong>Payment Amount:</strong> {selectedJob.paymentAmount}
-              </p>
-            </div>
-          </div>
-        </div>
+        <JobDetailsModal selectedJob={selectedJob} closeModal={closeModal} />
       )}
     </div>
   );

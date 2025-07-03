@@ -11,6 +11,7 @@ import RatingComponent from './RatingComponent'
 import ISidebarMobile from "./ISidebarMobile";
 import SettingsPage from "./SettingsPage";
 import CustomAlert from "./CustomAlert";
+import JobDetailsModal from "./JobsDetailsModal";
 
 export {
     IHeader,
@@ -25,5 +26,6 @@ export {
     RatingComponent,
     ISidebarMobile,
     SettingsPage,
-    CustomAlert
+    CustomAlert,
+    JobDetailsModal
 }

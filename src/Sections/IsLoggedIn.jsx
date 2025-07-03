@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { IHeader, ISideBar, IHome, IFooter, IJobs, IArtisans, IEndSidebar, IPostjobs, ISidebarMobile } from "../isComponents";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { IHsetLinks } from "../Constants";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db, saveUserToFirestore } from "../firebase";
+import { WifiOff, Loader2 } from "lucide-react";
 
 const IsLoggedIn = () => {
   const [showExpandedJobs, setShowExpandedJobs] = useState(false);
@@ -83,20 +83,44 @@ const IsLoggedIn = () => {
     setActiveProjects(data.activeProjects);
   };
 
+  const handleRetry = () => {
+    setIsOffline(!navigator.onLine);
+    if (navigator.onLine) {
+      setIsLoading(true);
+      window.location.reload(); // Trigger a reload to reattempt authentication
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="font-ComicNeue text-xl text-gray-700">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-Asphalt">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto" aria-label="Loading" />
+          <p className="font-Quicksand text-xl text-gray-700 dark:text-gray-200">
+            Loading your dashboard...
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (isOffline && !user) {
+  if (isOffline && user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
-          <p className="font-ComicNeue text-xl text-gray-700">Offline Mode</p>
-          <p className="font-ComicNeue text-md text-gray-500">No internet connection. Please reconnect to proceed.</p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 drk:bg-Asphalt">
+        <div className="text-center py-2 px-10 bg-white drk:bg-gray-800 rounded-full shadow-md border border-stone-300 flex gap-10 items-center cursor-pointer hover:bg-gray-50 drk:hover:bg-gray-700 transition-all duration-300"
+        
+        onClick={handleRetry}
+        >
+            <WifiOff size={25} className=" text-red-500 " aria-label="Offline" />
+          <div className="space-y-1">
+            <p className="font-Quicksand text-lg font-black">
+            No Internet Connection
+          </p>
+          <p className="font-Quicksand text-sm font-thin ">
+            Please check your network and click to retry.
+          </p>
+          </div>
+          <WifiOff size={25} className=" text-red-500 " aria-label="Offline" />
         </div>
       </div>
     );
