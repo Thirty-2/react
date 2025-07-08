@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, db, saveUserToFirestore } from "../firebase";
 import { FaSpinner } from "react-icons/fa";
-import { CustomAlert } from "../isComponents";
+import { CustomAlert, INotifications } from "../isComponents";
 
-const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmit, handleInputChange, profileData, user, onProfileUpdate }) => {
+const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmit, handleInputChange, profileData, user, onProfileUpdate, notifications, isNotificationsOpen }) => {
   const [activeSection, setActiveSection] = useState("profile");
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,7 +65,7 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
         const updatedProfile = { ...profileData, id: updatedId };
         await saveUserToFirestore(currentUser.uid, updatedProfile);
         onProfileUpdate(updatedProfile); // Pass updated profile to parent
-        setIsProfileSaved(true); // Mark profile as saved after successful save
+        setIsProfileSaved(true);
       }
       setSaveMessage("Changes Saved!");
       setTimeout(() => setSaveMessage(""), 2000);
@@ -129,18 +129,6 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
               </button>
             </li>
             <li>
-              <button
-                className={`w-full text-left px-4 py-2 rounded-lg text-lg ${
-                  activeSection === "notifications"
-                    ? "bg-ArtisansBlue-100 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-200 hover:shadow-sm"
-                } transition-all duration-200`}
-                onClick={() => setActiveSection("notifications")}
-              >
-                Notification Settings
-              </button>
-            </li>
-            <li>
               <div>
                 <button
                   className="px-6 py-2 text-red-500 rounded-lg text-lg cursor-pointer hover:text-red-700 transition-colors"
@@ -159,7 +147,6 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                 Profile Settings
               </h2>
               <div className="mb-6">
-                <label className="block text-base text-gray-700 mb-2">Profile Picture</label>
                 <div className="flex items-center gap-6">
                   <img
                     src={profileData.profilePic || user.profilePic || "https://via.placeholder.com/100"}
@@ -350,35 +337,6 @@ const SettingsPage = ({ isProfileFormOpen, toggleProfileForm, handleProfileSubmi
                   </button>
                 </div>
               </form>
-            </div>
-          )}
-          {activeSection === "notifications" && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-2">
-                Notification Settings
-              </h2>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-base text-gray-700 mb-2">
-                    Enable Notifications
-                  </label>
-                  <input
-                    type="checkbox"
-                    checked={notificationEnabled}
-                    onChange={(e) => setNotificationEnabled(e.target.checked)}
-                    className="w-6 h-6 text-ArtisansBlue-100 focus:ring-2 focus:ring-ArtisansBlue-100 border-gray-300 rounded-lg"
-                  />
-                </div>
-                <button
-                  className="px-6 py-2 bg-ArtisansBlue-100 text-white rounded-lg text-lg hover:bg-ArtisansBlue-200 transition-colors shadow-md"
-                  onClick={() => {
-                    console.log("Notifications saved:", notificationEnabled);
-                    toggleProfileForm();
-                  }}
-                >
-                  Save
-                </button>
-              </div>
             </div>
           )}
         </div>

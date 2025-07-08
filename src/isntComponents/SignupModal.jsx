@@ -2,54 +2,51 @@ import React, { useState } from "react";
 import { MdClose } from "react-icons/md";
 import { BsGoogle } from "react-icons/bs";
 import { LogoW, Dulachef } from "../assets/images";
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, googleProvider, saveUserToFirestore, saveArtisanToFirestore } from "../firebase";
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail } from "firebase/auth";
+import { auth, saveUserToFirestore, saveArtisanToFirestore } from "../firebase";
+import {CustomAlert} from "../isComponents";
 
 const SignupModal = ({ onClose, setUser }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+  const [alert, setAlert] = useState({ show: false, message: "", type: "info" });
   const [isSignUp, setIsSignUp] = useState(true);
+
+  // google provider, account selection
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({
+    prompt: "select_account",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError("");
+    setAlert({ show: false, message: "", type: "info" });
   };
 
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const artisan = result.user;
-      const emailName = artisan.email.split("@")[0];
       const userData = {
-        id: emailName, // Set id to email name
+        id: artisan.uid,
         email: artisan.email,
-        name: artisan.displayName || emailName,
-        profilePic: artisan.photoURL,
-        role: "customer", // Default role, can be updated later
-        createdAt: new Date(),
-      };
-      const artisanData = {
-        id: emailName, // Set id to email name
-        email: artisan.email,
-        name: artisan.displayName || emailName,
-        profilePic: artisan.photoURL,
-        role: "customer", // Default to customer, update to "artisan" if applicable
+        name: artisan.displayName || artisan.email.split("@")[0],
+        profilePic: artisan.photoURL || "https://via.placeholder.com/40?text=User",
+        role: "customer",
         createdAt: new Date(),
       };
       setUser(userData);
-      await saveUserToFirestore(artisan.uid, userData); // Use uid for document ID, id as custom field
-      await saveArtisanToFirestore(artisan.uid, artisanData); // Use uid for document ID
+      await saveUserToFirestore(artisan.uid, userData);
+      setAlert({ show: true, message: "Signed in successfully!", type: "success" });
       onClose();
     } catch (error) {
+      let errorMessage = "Sign-in failed. Please try again.";
       if (error.code === "auth/account-exists-with-different-credential") {
-        setError("This email is linked to another sign-in method. Please use that method or contact support.");
+        errorMessage = "This email is linked to another sign-in method.";
       } else if (error.code === "auth/popup-blocked") {
-        setError("Popup blocked. Please allow popups and try again.");
-      } else {
-        setError(`Sign in Failed, Please try again.`);
-        console.log(error.message);
+        errorMessage = "Popup blocked. Please allow popups and try again.";
       }
+      setAlert({ show: true, message: errorMessage, type: "error" });
       console.error("Google Sign-In error:", error);
     }
   };
@@ -57,33 +54,25 @@ const SignupModal = ({ onClose, setUser }) => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError("Please fill in all fields.");
+      setAlert({ show: true, message: "Please fill in all fields.", type: "error" });
       return;
     }
     try {
       const result = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = result.user;
-      const emailName = user.email.split("@")[0];
       const userData = {
-        id: emailName, // Set id to email name
+        id: user.uid,
         email: user.email,
-        name: emailName,
-        role: "customer", // Default role
-        createdAt: new Date(),
-      };
-      const artisanData = {
-        id: emailName, // Set id to email name
-        email: user.email,
-        name: emailName,
-        role: "customer", // Default to customer
+        name: user.email.split("@")[0],
+        role: "customer",
         createdAt: new Date(),
       };
       setUser(userData);
-      await saveUserToFirestore(user.uid, userData); // Use uid for document ID
-      await saveArtisanToFirestore(user.uid, artisanData); // Use uid for document ID
+      await saveUserToFirestore(user.uid, userData);
+      setAlert({ show: true, message: "Account created successfully!", type: "success" });
       onClose();
     } catch (error) {
-      setError("Email already in use ");
+      setAlert({ show: true, message: "Email already in use.", type: "error" });
       console.error("Sign-up error:", error);
     }
   };
@@ -91,27 +80,59 @@ const SignupModal = ({ onClose, setUser }) => {
   const handleSignIn = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError("Please fill in all fields.");
+      setAlert({ show: true, message: "Please fill in all fields.", type: "error" });
       return;
     }
     try {
       const result = await signInWithEmailAndPassword(auth, formData.email, formData.password);
       const user = result.user;
-      const emailName = user.email.split("@")[0];
       const userData = {
-        id: emailName, // Set id to email name
+        id: user.uid,
         email: user.email,
-        name: emailName,
-        role: "customer", // Fetch existing role if needed
+        name: user.email.split("@")[0],
+        role: "customer",
         createdAt: new Date(),
       };
       setUser(userData);
-      await saveUserToFirestore(user.uid, userData); // Use uid for document ID
+      await saveUserToFirestore(user.uid, userData);
+      setAlert({ show: true, message: "Signed in successfully!", type: "success" });
       onClose();
     } catch (error) {
-      setError("Sign-in failed. " + (error.message || "Please check your credentials."));
+      setAlert({
+        show: true,
+        message: "Sign-in failed. Please check your credentials.",
+        type: "error",
+      });
       console.error("Sign-in error:", error);
     }
+  };
+
+  const handleResetPassword = async () => {
+    if (!formData.email) {
+      setAlert({ show: true, message: "Please enter your email to reset your password.", type: "error" });
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, formData.email);
+      setAlert({
+        show: true,
+        message: "Password reset email sent! Check your inbox.",
+        type: "success",
+      });
+    } catch (error) {
+      let errorMessage = "Failed to send reset email. Please try again.";
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address.";
+      }
+      setAlert({ show: true, message: errorMessage, type: "error" });
+      console.error("Password reset error:", error);
+    }
+  };
+
+  const closeAlert = () => {
+    setAlert({ show: false, message: "", type: "info" });
   };
 
   const handleOverlayClick = (e) => {
@@ -129,6 +150,14 @@ const SignupModal = ({ onClose, setUser }) => {
       <div className="bg-ArtisansAsh-300 p-6 rounded-3xl flex flex-col md:flex-row gap-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Left */}
         <div className="flex flex-col gap-8 w-full md:w-1/2">
+          {alert.show && (
+            <CustomAlert
+              message={alert.message}
+              type={alert.type}
+              duration={2000}
+              onClose={closeAlert}
+            />
+          )}
           <div className="flex justify-between items-center">
             <img src={LogoW} alt="Logo" className="w-24 h-auto" />
             <button onClick={onClose} className="text-red-400">
@@ -141,7 +170,7 @@ const SignupModal = ({ onClose, setUser }) => {
                 {isSignUp ? "Welcome!" : "Welcome Back!"}
               </h1>
               <p className="text-stone-200 font-light">
-                {isSignUp ? "Lets create your new account." : "Please sign in to your account."}
+                {isSignUp ? "Let's create your new account." : "Please sign in to your account."}
               </p>
             </div>
             <div className="space-y-6">
@@ -178,7 +207,6 @@ const SignupModal = ({ onClose, setUser }) => {
                   className="w-full p-4 border border-stone-200 rounded-md outline-none bg-ArtisansAsh-200 text-white placeholder:text-stone-300 focus:ring-2 focus:ring-blue-500"
                   aria-label="Password"
                 />
-                {error && <p className="text-red-400 text-sm">{error}</p>}
                 <button
                   type="submit"
                   className="w-full bg-stone-50 p-4 rounded-md text-black font-semibold hover:bg-black hover:text-white transition-all duration-500 ease-in-out"
@@ -198,7 +226,7 @@ const SignupModal = ({ onClose, setUser }) => {
                   <>
                     Forgot Password?{' '}
                     <button
-                      onClick={() => alert("Reset password coming soon!")}
+                      onClick={handleResetPassword}
                       className="underline text-blue-300 hover:text-blue-400"
                     >
                       Reset

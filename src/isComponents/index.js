@@ -12,6 +12,7 @@ import ISidebarMobile from "./ISidebarMobile";
 import SettingsPage from "./SettingsPage";
 import CustomAlert from "./CustomAlert";
 import JobDetailsModal from "./JobsDetailsModal";
+import IUserprofile from "./IUserprofile";
 
 export {
     IHeader,
@@ -27,5 +28,6 @@ export {
     ISidebarMobile,
     SettingsPage,
     CustomAlert,
-    JobDetailsModal
+    JobDetailsModal,
+    IUserprofile
 }

@@ -10,7 +10,7 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
-  const displayLimit = 6;
+  const displayLimit = 10;
 
   const trimText = (text, maxLength) => {
     if (text.length <= maxLength) return text;
@@ -92,15 +92,15 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
         <div>
           <h1 className="text-xl font-semibold mb-4">Recent Job Posts</h1>
         </div>
-        <div className="grid grid-cols-1 min-md:grid-cols-2 min-lg:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2">
           {jobs.slice(0, displayLimit).map((job, index) => (
             <div
               key={index}
-              className="rounded-lg border border-stone-200 overflow-hidden relative group bg-white shadow-sm cursor-pointer flex flex-col"
+              className="rounded-lg border border-stone-200 overflow-hidden relative group bg-white shadow-sm cursor-pointer"
               onClick={() => handleJobClick(job)}
             >
-              <div className="p-3 flex flex-col gap-4">
-                <div className="w-full">
+              <div className="p-3 min-md:flex max-sm:space-y-2 justify-between items-center w-full">
+                <div className="w-fit">
                   <div className="flex items-center justify-between w-full">
                     <div className="w-fit flex items-center gap-4">
                       <img
@@ -119,7 +119,8 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
                     </div>
                   </div>
                 </div>
-                <div className="text-md font-semibold text-gray-600 items-start space-y-2 flex gap-10 min-md:gap-15">
+                
+                <div className="text-md font-semibold text-gray-600 space-y-2 flex gap-10 min-md:gap-15">
                   <div className="flex flex-col gap-2">
                     <span className="flex items-center gap-2">
                       <Briefcase /> {job.employmentType}
@@ -139,13 +140,7 @@ const IHome = ({ showExpandedJobs, setShowExpandedJobs }) => {
                     </span>
                   </div>
                 </div>
-              </div>
-              <hr className="w-[95%] text-stone-200 m-auto" />
-              <div className="w-full flex items-center justify-between rounded p-2.5">
-                <p className="text-[10px] font-thin ml-4">
-                  Posted on{" "}
-                  {job.postedDate ? new Date(job.postedDate).toLocaleDateString() : ""}
-                </p>
+
                 <div className="p-2 bg-blue-200 text-blue-900 rounded-md w-fit">
                   <p className="text-xs font-semibold">
                     Apply Before{" "}

@@ -11,7 +11,7 @@ const IJobs = ({ setShowExpandedJobs }) => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState(null);
-  const jobsPerPage = 4;
+  const jobsPerPage = 6;
 
   useEffect(() => {
     const fetchUserProfilePic = async (postedBy) => {

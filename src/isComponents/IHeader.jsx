@@ -8,7 +8,11 @@ import {
   NotificationNF,
   CleaningNF,
 } from "../assets/icons";
-import { MdSearch } from "react-icons/md";
+import { Md10K, MdCurtains, MdSearch, MdWork, MdPerson } from "react-icons/md";
+import {
+  PersonStanding,
+  BriefcaseBusinessIcon
+} from "lucide-react";
 import { auth, db } from "../firebase";
 import { doc, getDoc, setDoc, onSnapshot, collection } from "firebase/firestore";
 import { SettingsPage, INotifications, CustomAlert } from "../isComponents";
@@ -18,6 +22,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
+  const [role, setRole] = useState("customer"); // Track user role (customer/artisan)
   const [profileData, setProfileData] = useState({
     gender: "",
     phone: "",
@@ -29,9 +34,10 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
     firstName: "",
     lastName: "",
     cvPdf: "",
+    role: "customer",
   });
   const [notifications, setNotifications] = useState([]);
-  const [alert, setAlert] = useState({ show: false, message: "", type: "info" }); // State for custom alert
+  const [alert, setAlert] = useState({ show: false, message: "", type: "info" });
 
   const notificationRef = useRef(null);
   const settingsRef = useRef(null);
@@ -53,6 +59,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
             data.dateOfBirth &&
             data.profession;
           setProfileComplete(isComplete);
+          setRole(data.role || "customer"); // Initialize role from Firestore
           setProfileData({
             gender: data.gender || "",
             phone: data.phone || "",
@@ -64,10 +71,12 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
             firstName: firstName || "",
             lastName: lastName || "",
             cvPdf: data.cvPdf || "",
-            id: data.id || user.email.split("@")[0], // Initialize id from existing data or email name
+            id: data.id || user.email.split("@")[0],
+            role: data.role || "customer",
           });
         } else {
           setProfileComplete(false);
+          setRole("customer");
         }
       }
     };
@@ -78,7 +87,10 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
         .filter((doc) => doc.data().toUserId === user?.id)
         .map((doc) => ({ id: doc.id, ...doc.data() }));
       setNotifications(userNotifications);
-    }, (err) => console.error("Notification error:", err));
+    }, (err) => {
+      console.error("Notification error:", err);
+      showAlert("Failed to load notifications.", "error");
+    });
 
     return () => unsubscribe();
   }, [user?.id]);
@@ -96,6 +108,24 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
   const toggleNotifications = () => setIsNotificationsOpen(!isNotificationsOpen);
   const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen);
+
+  const handleToggleRole = async () => {
+    if (!auth.currentUser) {
+      showAlert("Please sign in to change your role.", "error");
+      return;
+    }
+    const newRole = role === "customer" ? "artisan" : "customer";
+    try {
+      const userDoc = doc(db, "users", auth.currentUser.uid);
+      await setDoc(userDoc, { role: newRole }, { merge: true });
+      setRole(newRole);
+      setProfileData((prev) => ({ ...prev, role: newRole }));
+      showAlert(`Role changed to ${newRole}!`, "success");
+    } catch (error) {
+      console.error("Error updating role:", error);
+      showAlert("Failed to update role. Please try again.", "error");
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -137,7 +167,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
         const userDoc = doc(db, "users", currentUser.uid);
         const updatedId = profileData.firstName && profileData.lastName
           ? `${profileData.firstName} ${profileData.lastName}`.trim()
-          : user.email.split("@")[0]; // Default to email name
+          : user.email.split("@")[0];
         await setDoc(userDoc, {
           ...profileData,
           id: updatedId,
@@ -191,7 +221,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
 
   return (
     <header className="p-2 pt-0 pb-4 flex justify-between items-center relative border-b border-stone-200">
-      <div className="font-black text-2xl max-md:text-lg cursor-pointer text-stone-600 hover:text-stone-900 transition-colors duration-200 ease-in-out flex items-center gap-4">
+      <div className="">
         <div className="flex w-fit gap-2">
           <img src={CarpenterNF} alt="Carpenter" />
           <img src={StockpotNF} alt="Cook" />
@@ -200,7 +230,20 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
           <img src={CleaningNF} alt="Cleaning" className="max-md:hidden" />
         </div>
       </div>
+
       <div className="flex gap-5 items-center">
+        <div
+          className="w-17 h-6.5 p-[2px] rounded-full  bg-stone-100 relative flex items-center cursor-pointer shadow-sm border border-stone-300"
+          onClick={handleToggleRole}
+        >
+          <div
+            className={`bg-ArtisansBlue rounded-full p-0.5 flex text-center text-white transform transition-transform duration-300 ease-in-out ${
+              role === "artisan" ? "translate-x-[43px]" : "translate-x-[2px]"
+            }`}
+          >
+            {role === "artisan" ? <BriefcaseBusinessIcon size={15} /> : <PersonStanding  size={15} />}
+          </div>
+        </div>
         <MdSearch
           size={25}
           className="min-md:hidden cursor-pointer"
@@ -294,12 +337,13 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
             setProfileData(updatedProfile);
             setProfileComplete(
               updatedProfile.gender &&
-              updatedProfile.phone &&
-              updatedProfile.age &&
-              updatedProfile.regionalAddress &&
-              updatedProfile.dateOfBirth &&
-              updatedProfile.profession
+                updatedProfile.phone &&
+                updatedProfile.age &&
+                updatedProfile.regionalAddress &&
+                updatedProfile.dateOfBirth &&
+                updatedProfile.profession
             );
+            setRole(updatedProfile.role || "customer");
           }}
         />
       )}
@@ -307,6 +351,7 @@ const IHeader = ({ setShowSettings, showSettings, user }) => {
         <CustomAlert
           message={alert.message}
           type={alert.type}
+          duration={2000}
           onClose={hideAlert}
         />
       )}

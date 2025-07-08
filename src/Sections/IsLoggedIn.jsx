@@ -93,10 +93,10 @@ const IsLoggedIn = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-Asphalt">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 drk:bg-Asphalt">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto" aria-label="Loading" />
-          <p className="font-Quicksand text-xl text-gray-700 dark:text-gray-200">
+          <p className="font-Quicksand text-xl text-gray-700 drk:text-gray-200">
             Loading your dashboard...
           </p>
         </div>
@@ -104,7 +104,7 @@ const IsLoggedIn = () => {
     );
   }
 
-  if (isOffline && user) {
+  if (isOffline && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 drk:bg-Asphalt">
         <div className="text-center py-2 px-10 bg-white drk:bg-gray-800 rounded-full shadow-md border border-stone-300 flex gap-10 items-center cursor-pointer hover:bg-gray-50 drk:hover:bg-gray-700 transition-all duration-300"
